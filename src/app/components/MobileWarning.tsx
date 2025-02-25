@@ -1,59 +1,60 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { IoDesktopOutline, IoCloseCircleOutline } from 'react-icons/io5';
 
 export default function MobileWarning() {
-  const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const [warningDismissed, setWarningDismissed] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024); // Changed to 1024px for better tablet support
-    };
+    // Show warning after 5 seconds
+    const timer = setTimeout(() => {
+      setShowWarning(true);
+    }, 5000);
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
-  if (!mounted || !isMobile) return null;
+  if (!showWarning || warningDismissed) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-6 animate-fade-in">
-      <div className="bg-[#202226] rounded-xl p-8 max-w-md w-full text-center shadow-2xl border border-purple-500/20">
-        <div className="mb-6">
-          <div className="w-20 h-20 mx-auto bg-purple-500/10 rounded-full flex items-center justify-center">
-            <svg 
-              className="w-12 h-12 text-purple-500" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
-              />
-            </svg>
+    <div className="lg:hidden fixed inset-x-0 top-16 z-50 animate-slide-down">
+      <div className="bg-[#1A1B1E] mx-2 p-4 rounded-xl border border-[#6C5DD3] shadow-lg">
+        <div className="flex items-start gap-3">
+          <div className="bg-[#6C5DD3] p-2 rounded-lg shrink-0">
+            <IoDesktopOutline className="w-6 h-6 text-white" />
           </div>
-        </div>
-        <h2 className="text-2xl font-bold text-white mb-3">Desktop Experience Required</h2>
-        <p className="text-gray-400 mb-6 leading-relaxed">
-          For the best trading experience with Xoracle AI Dashboard, please access the platform from a desktop or laptop computer. Our advanced trading features require a larger screen.
-        </p>
-        <div className="text-sm text-purple-400/80 pt-4 border-t border-purple-500/10">
-          Current device width: {typeof window !== 'undefined' ? `${window.innerWidth}px` : '0px'}
-          <br />
-          <span className="text-xs text-gray-500 mt-1">
-            (Minimum required: 1024px)
-          </span>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-white mb-1">Switch to Desktop</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              For the best trading experience with full features and better visualization, please use our desktop version.
+            </p>
+          </div>
+          <button 
+            onClick={() => setWarningDismissed(true)}
+            className="text-gray-500 hover:text-white transition-colors shrink-0"
+          >
+            <IoCloseCircleOutline className="w-6 h-6" />
+          </button>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slide-down {
+          from {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        .animate-slide-down {
+          animation: slide-down 0.5s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

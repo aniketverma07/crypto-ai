@@ -37,6 +37,15 @@ const chartOptions = {
     legend: {
       display: false,
     },
+    tooltip: {
+      mode: 'index',
+      intersect: false,
+      backgroundColor: '#2A2C32',
+      titleColor: '#fff',
+      bodyColor: '#fff',
+      borderColor: '#3F3F46',
+      borderWidth: 1,
+    }
   },
   elements: {
     line: {
@@ -45,6 +54,8 @@ const chartOptions = {
     },
     point: {
       radius: 0,
+      hitRadius: 8,
+      hoverRadius: 4,
     },
   },
 };
@@ -67,7 +78,6 @@ export default function MarketOverview() {
 
     fetchData();
     const interval = setInterval(fetchData, 30000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -95,12 +105,14 @@ export default function MarketOverview() {
 
   if (loading) {
     return (
-      <div className="animate-pulse">
-        <div className="h-8 bg-[#2A2C32] rounded w-48 mb-4"></div>
-        <div className="grid grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-[#2A2C32] h-40 rounded-xl"></div>
-          ))}
+      <div className="bg-[#1A1B1E] rounded-xl p-4 lg:p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-[#2A2C32] rounded w-48 mb-4"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-[#2A2C32] h-[140px] rounded-xl"></div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -112,35 +124,48 @@ export default function MarketOverview() {
     price: formatPrice(crypto.quote.USD.price),
     change: formatPercentage(crypto.quote.USD.percent_change_24h),
     color: crypto.symbol === 'BTC' ? '#F7931A' : 
-           crypto.symbol === 'ETH' ? '#627EEA' : '#F0B90B',
+           crypto.symbol === 'ETH' ? '#627EEA' : '#14F195',
     trend: crypto.quote.USD.percent_change_24h > 0 ? 'up' : 'down'
   }));
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Principal Resources</h2>
-        <div className="text-sm text-gray-400">
+    <div className="bg-[#1A1B1E] rounded-xl p-4 lg:p-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold mb-2 sm:mb-0">Principal Resources</h2>
+        <div className="text-sm text-gray-400 whitespace-nowrap">
           for the next 24 hours • {cryptoCards.length} Resources
         </div>
       </div>
       
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {cryptoCards.map((crypto, index) => (
-          <div key={index} className="bg-[#1A1B1E] rounded-xl p-4 hover:bg-[#2A2C32] transition-colors">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-full" style={{ backgroundColor: crypto.color }}></div>
-              <div>
-                <div className="flex items-center gap-2">
+          <div 
+            key={index} 
+            className="bg-[#2A2C32] rounded-xl p-4 hover:bg-[#313438] transition-colors"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center" 
+                style={{ backgroundColor: `${crypto.color}20` }}
+              >
+                <div 
+                  className="w-6 h-6 rounded-full" 
+                  style={{ backgroundColor: crypto.color }}
+                />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
                   <span className="font-medium">{crypto.name}</span>
-                  <span className="text-sm text-gray-400">{crypto.symbol}</span>
+                  <span className={`text-sm font-medium ${
+                    crypto.trend === 'up' ? 'text-green-500' : 'text-red-500'
+                  }`}>
+                    {crypto.change}
+                  </span>
                 </div>
-                <span className={crypto.trend === 'up' ? 'positive-change' : 'negative-change'}>
-                  {crypto.change}
-                </span>
+                <div className="text-sm text-gray-400">{crypto.symbol}</div>
               </div>
             </div>
-            <div className="h-[60px]">
+            <div className="h-[60px] -mx-2">
               <Line
                 data={{
                   labels: Array(24).fill(''),

@@ -29,20 +29,33 @@ const mockData = [
   },
   {
     id: 3,
-    name: "BNB",
-    symbol: "BNB",
+    name: "Solana",
+    symbol: "SOL",
     quote: {
       USD: {
-        price: 312.45,
+        price: 124.56,
         volume_24h: 8.2e9,
-        market_cap: 48e9,
-        percent_change_24h: -0.29
+        market_cap: 42.1e9,
+        percent_change_24h: 18.92
       }
     }
   }
 ];
 
 export async function GET() {
-  // For now, return mock data
-  return NextResponse.json(mockData);
+  try {
+    return new NextResponse(JSON.stringify(mockData), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error) {
+    console.error('Error in /api/crypto:', error);
+    return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
 }

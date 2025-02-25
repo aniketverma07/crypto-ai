@@ -19,12 +19,12 @@ const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, onCoinChange 
   ];
 
   return (
-    <div className="flex items-center gap-2 mb-4">
+    <div className="flex flex-wrap gap-2">
       {coins.map((coin) => (
         <button
           key={coin.symbol}
           onClick={() => onCoinChange(coin.symbol)}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
             selectedCoin === coin.symbol
               ? 'bg-purple-500 text-white'
               : 'bg-[#2A2C32] text-gray-400 hover:bg-[#313438]'
@@ -46,12 +46,12 @@ const TimeframeSelector: React.FC<TimeframeProps> = ({ selectedTimeframe, onTime
   const timeframes = ['1H', '4H', '1D', '1W', '1M'];
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap gap-2">
       {timeframes.map((timeframe) => (
         <button
           key={timeframe}
           onClick={() => onTimeframeChange(timeframe)}
-          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+          className={`min-w-[48px] px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             selectedTimeframe === timeframe
               ? 'bg-purple-500 text-white'
               : 'bg-[#2A2C32] text-gray-400 hover:bg-[#313438]'
@@ -100,23 +100,39 @@ export default function DetailedChart({ selectedCoin, onCoinChange }: DetailedCh
 
   if (loading) {
     return (
-      <div className="bg-[#1A1B1E] rounded-xl p-6 h-[400px] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+      <div className="animate-pulse space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-8 w-12 bg-[#2A2C32] rounded-lg" />
+            ))}
+          </div>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-8 w-12 bg-[#2A2C32] rounded-lg" />
+            ))}
+          </div>
+        </div>
+        <div className="h-[250px] sm:h-[400px] bg-[#2A2C32] rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="bg-[#1A1B1E] rounded-xl p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <CoinSelector selectedCoin={selectedCoin} onCoinChange={onCoinChange} />
-        <TimeframeSelector selectedTimeframe={selectedTimeframe} onTimeframeChange={setSelectedTimeframe} />
+        <TimeframeSelector 
+          selectedTimeframe={selectedTimeframe} 
+          onTimeframeChange={setSelectedTimeframe} 
+        />
       </div>
-      <div className="h-[400px]">
+
+      <div className="h-[250px] sm:h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+            margin={{ top: 10, right: 5, left: 5, bottom: 0 }}
           >
             <defs>
               <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
@@ -124,33 +140,45 @@ export default function DetailedChart({ selectedCoin, onCoinChange }: DetailedCh
                 <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#2A2C32" />
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              stroke="#2A2C32" 
+              vertical={false}
+            />
             <XAxis
               dataKey="timestamp"
               stroke="#6B7280"
-              tick={{ fill: '#6B7280' }}
+              tick={{ fill: '#6B7280', fontSize: 12 }}
               tickLine={{ stroke: '#6B7280' }}
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return selectedTimeframe === '1H' ? date.toLocaleTimeString() :
+                       selectedTimeframe === '1D' ? `${date.getHours()}:00` :
+                       date.toLocaleDateString();
+              }}
             />
             <YAxis
               stroke="#6B7280"
-              tick={{ fill: '#6B7280' }}
+              tick={{ fill: '#6B7280', fontSize: 12 }}
               tickLine={{ stroke: '#6B7280' }}
               tickFormatter={(value) => `$${value.toLocaleString()}`}
+              width={80}
             />
             <Tooltip
               contentStyle={{
                 backgroundColor: '#2A2C32',
                 border: 'none',
                 borderRadius: '8px',
-                color: '#fff'
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               }}
               itemStyle={{ color: '#fff' }}
-              labelStyle={{ color: '#6B7280' }}
+              labelStyle={{ color: '#6B7280', marginBottom: '4px' }}
             />
             <Area
               type="monotone"
               dataKey="price"
               stroke="#8B5CF6"
+              strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorPrice)"
             />

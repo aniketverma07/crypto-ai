@@ -14,7 +14,7 @@ interface Coin {
 }
 
 interface WatchlistProps {
-  onCoinSelect: (coin: string) => void;
+  onCoinSelect?: (coin: string) => void;
 }
 
 interface CoinData {
@@ -111,50 +111,88 @@ export default function Watchlist({ onCoinSelect }: WatchlistProps) {
   }, []);
 
   return (
-    <div className="bg-[#1A1B1E] rounded-xl p-6 mb-4">
+    <div className="bg-[#1A1B1E] rounded-xl p-4 md:p-6 mb-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold">Watchlist</h2>
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <h2 className="text-base md:text-lg font-semibold">Watchlist</h2>
         <button
           onClick={() => setSearchOpen(true)}
           className="p-2 hover:bg-[#2A2C32] rounded-lg transition-colors"
+          aria-label="Add to watchlist"
         >
           <IoAddOutline className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Search Modal */}
-      {searchOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#1A1B1E] rounded-xl p-6 w-[480px] max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Add Coins</h3>
-              <button
-                onClick={() => setSearchOpen(false)}
-                className="p-2 hover:bg-[#2A2C32] rounded-lg transition-colors"
-              >
-                <IoCloseOutline className="w-5 h-5" />
-              </button>
+      {/* Watchlist - Horizontal scroll on mobile */}
+      <div className="flex overflow-x-auto pb-2 -mx-4 px-4 md:block md:overflow-visible md:px-0 md:mx-0 space-x-3 md:space-x-0 md:space-y-3">
+        {coins.map((coin) => (
+          <button
+            key={coin.symbol}
+            onClick={() => onCoinSelect?.(coin.symbol)}
+            className="flex-shrink-0 w-[280px] md:w-full p-3 bg-[#2A2C32] rounded-xl hover:bg-[#313438] transition-colors active:bg-[#363840]"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#1A1B1E] rounded-lg flex items-center justify-center">
+                  <span className="text-sm font-medium">{coin.symbol}</span>
+                </div>
+                <div>
+                  <div className="font-medium">{coin.name}</div>
+                  <div className="text-sm text-gray-400">{coin.symbol}</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-medium">${coin.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className={`flex items-center gap-1 ${coin.change24h >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+                  {coin.change24h >= 0 ? (
+                    <IoTrendingUpOutline className="w-4 h-4" />
+                  ) : (
+                    <IoTrendingDownOutline className="w-4 h-4" />
+                  )}
+                  <span>{Math.abs(coin.change24h).toFixed(2)}%</span>
+                </div>
+              </div>
             </div>
+          </button>
+        ))}
+      </div>
 
-            {/* Search Input */}
-            <div className="relative mb-4">
-              <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search coins..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#2A2C32] rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6C5DD3]"
-              />
+      {/* Search Modal - Full screen on mobile */}
+      {searchOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start md:items-center justify-center z-50">
+          <div className="bg-[#1A1B1E] w-full h-full md:h-auto md:w-[480px] md:max-h-[80vh] md:rounded-xl overflow-hidden">
+            <div className="sticky top-0 bg-[#1A1B1E] p-4 md:p-6 border-b border-gray-800">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Add Coins</h3>
+                <button
+                  onClick={() => setSearchOpen(false)}
+                  className="p-2 hover:bg-[#2A2C32] rounded-lg transition-colors"
+                  aria-label="Close"
+                >
+                  <IoCloseOutline className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Search Input */}
+              <div className="relative">
+                <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search coins..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#2A2C32] rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6C5DD3]"
+                />
+              </div>
             </div>
 
             {/* Search Results */}
-            <div className="overflow-y-auto max-h-[400px] space-y-2">
+            <div className="overflow-y-auto h-[calc(100vh-140px)] md:max-h-[400px] p-4 md:p-6 space-y-2">
               {filteredResults.map((coin) => (
                 <div
                   key={coin.id}
-                  className="flex items-center justify-between p-3 hover:bg-[#2A2C32] rounded-xl transition-colors cursor-pointer"
+                  className="flex items-center justify-between p-3 hover:bg-[#2A2C32] rounded-xl transition-colors cursor-pointer active:bg-[#313438]"
                   onClick={() => toggleCoin(coin)}
                 >
                   <div className="flex items-center gap-3">
@@ -181,45 +219,6 @@ export default function Watchlist({ onCoinSelect }: WatchlistProps) {
           </div>
         </div>
       )}
-
-      {/* Watchlist */}
-      <div className="space-y-3">
-        {coins.map((coin) => (
-          <button
-            key={coin.symbol}
-            onClick={() => onCoinSelect(coin.symbol)}
-            className="w-full p-3 bg-[#2A2C32] rounded-xl hover:bg-[#313438] transition-colors"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-[#1A1B1E] rounded-lg flex items-center justify-center">
-                  <span className="text-sm font-medium">{coin.symbol}</span>
-                </div>
-                <div>
-                  <div className="font-medium">{coin.name}</div>
-                  <div className="text-sm text-gray-400">{coin.symbol}</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="font-medium">${coin.price.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}</div>
-                <div className={`text-sm flex items-center gap-1 ${
-                  coin.change24h >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'
-                }`}>
-                  {coin.change24h >= 0 ? (
-                    <IoTrendingUpOutline className="w-4 h-4" />
-                  ) : (
-                    <IoTrendingDownOutline className="w-4 h-4" />
-                  )}
-                  {Math.abs(coin.change24h).toFixed(1)}%
-                </div>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
