@@ -5,14 +5,29 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { IoWarningOutline } from 'react-icons/io5';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import Watchlist from './Watchlist';
+import MarketAnalysis from './MarketAnalysis'; 
 
 const DynamicDesktopRecommendation = dynamic(
   () => import('./DesktopRecommendation'),
   { ssr: false }
 );
 
+interface Coin {
+  symbol: string;
+  name: string;
+  price?: number;
+  change24h?: number;
+}
+
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isOpen } = useSidebar();
+  const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
+
+  const handleCoinSelect = (coin: Coin) => {
+    setSelectedCoin(coin);
+  };
   
   return (
     <div className="min-h-screen bg-[#13141B] text-white">

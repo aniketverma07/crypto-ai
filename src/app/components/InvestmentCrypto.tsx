@@ -73,7 +73,7 @@ export default function InvestmentCrypto() {
                 data={{
                   labels: Array(12).fill(''),
                   datasets: [{
-                    data: Array(12).fill().map(() => Math.random() * 100),
+                    data: Array(12).fill(0).map(() => Math.random() * 100),
                     borderColor: crypto.positive ? '#22C55E' : '#EF4444',
                     borderWidth: 2,
                     fill: false

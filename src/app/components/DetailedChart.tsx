@@ -4,9 +4,16 @@ import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { fetchCryptoHistoricalData } from '../services/api';
 
+interface Coin {
+  symbol: string;
+  name: string;
+  price?: number;
+  change24h?: number;
+}
+
 interface CoinSelectorProps {
-  selectedCoin: string;
-  onCoinChange: (coin: string) => void;
+  selectedCoin: Coin | null;
+  onCoinChange: (coin: Coin) => void;
 }
 
 const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, onCoinChange }) => {
@@ -23,9 +30,9 @@ const CoinSelector: React.FC<CoinSelectorProps> = ({ selectedCoin, onCoinChange 
       {coins.map((coin) => (
         <button
           key={coin.symbol}
-          onClick={() => onCoinChange(coin.symbol)}
+          onClick={() => onCoinChange(coin)}
           className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-            selectedCoin === coin.symbol
+            selectedCoin?.symbol === coin.symbol
               ? 'bg-purple-500 text-white'
               : 'bg-[#2A2C32] text-gray-400 hover:bg-[#313438]'
           }`}
@@ -70,8 +77,8 @@ interface ChartData {
 }
 
 interface DetailedChartProps {
-  selectedCoin: string;
-  onCoinChange: (coin: string) => void;
+  selectedCoin: Coin | null;
+  onCoinChange: (coin: Coin) => void;
 }
 
 export default function DetailedChart({ selectedCoin, onCoinChange }: DetailedChartProps) {
@@ -83,9 +90,9 @@ export default function DetailedChart({ selectedCoin, onCoinChange }: DetailedCh
     const loadChartData = async () => {
       setLoading(true);
       try {
-        const data = await fetchCryptoHistoricalData(selectedCoin, selectedTimeframe);
-        setChartData(data.data.map((item: { timestamp: number; price: number }) => ({
-          timestamp: new Date(item.timestamp).toLocaleString(),
+        const data = await fetchCryptoHistoricalData(selectedCoin?.symbol || 'BTC', selectedTimeframe);
+        setChartData(data.data.map((item: { timestamp: string | number; price: number }) => ({
+          timestamp: typeof item.timestamp === 'number' ? new Date(item.timestamp).toLocaleString() : new Date(parseInt(item.timestamp)).toLocaleString(),
           price: item.price
         })));
       } catch (error) {

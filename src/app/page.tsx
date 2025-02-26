@@ -17,11 +17,18 @@ import MobileWarning from './components/MobileWarning';
 import AIAnalysis from './components/AIAnalysis';
 import AlertList from './components/AlertList';
 
+interface Coin {
+  symbol: string;
+  name: string;
+  price?: number;
+  change24h?: number;
+}
+
 export default function Home() {
-  const [selectedCoin, setSelectedCoin] = useState('BTC');
+  const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const handleCoinSelect = (coin: string) => {
+  const handleCoinSelect = (coin: Coin) => {
     setSelectedCoin(coin);
   };
 
@@ -105,7 +112,7 @@ export default function Home() {
               <Watchlist onCoinSelect={handleCoinSelect} />
             </ErrorBoundary>
             <ErrorBoundary>
-              <MarketAnalysis />
+              <MarketAnalysis selectedCoin={selectedCoin} />
             </ErrorBoundary>
             <ErrorBoundary>
               <Portfolio />

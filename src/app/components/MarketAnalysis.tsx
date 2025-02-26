@@ -51,8 +51,12 @@ interface MarketAnalysisData {
   };
 }
 
-export default function MarketAnalysis() {
-  const { selectedCoin } = useCrypto();
+interface Coin {
+  symbol: string;
+  name: string;
+}
+
+export default function MarketAnalysis({ selectedCoin }: { selectedCoin: Coin | null }) {
   const [analysis, setAnalysis] = useState<MarketAnalysisData | null>(null);
   const [loading, setLoading] = useState(true);
 

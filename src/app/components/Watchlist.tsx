@@ -5,16 +5,10 @@ import { IoSearchOutline, IoAddOutline, IoCloseOutline, IoTrendingUpOutline, IoT
 import { useCrypto } from '../context/CryptoContext';
 
 interface Coin {
-  id: number;
-  name: string;
   symbol: string;
-  price: number;
-  change24h: number;
-  favorite: boolean;
-}
-
-interface WatchlistProps {
-  onCoinSelect?: (coin: string) => void;
+  name: string;
+  price?: number;
+  change24h?: number;
 }
 
 interface CoinData {
@@ -24,69 +18,55 @@ interface CoinData {
   change24h: number;
 }
 
+interface WatchlistProps {
+  onCoinSelect: (coin: Coin) => void;
+}
+
 export default function Watchlist({ onCoinSelect }: WatchlistProps) {
-  const { selectedCoin, setSelectedCoin } = useCrypto();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [watchlist, setWatchlist] = useState<Coin[]>([
-    { id: 1, name: 'Bitcoin', symbol: 'BTC', price: 52345.20, change24h: 2.34, favorite: true },
-    { id: 2, name: 'Ethereum', symbol: 'ETH', price: 3744.56, change24h: -1.23, favorite: true },
-    { id: 3, name: 'BNB', symbol: 'BNB', price: 312.45, change24h: 0.89, favorite: true },
-  ]);
-
-  const [searchResults, setSearchResults] = useState<Coin[]>([
-    { id: 4, name: 'Cardano', symbol: 'ADA', price: 1.23, change24h: 3.45, favorite: false },
-    { id: 5, name: 'Solana', symbol: 'SOL', price: 123.45, change24h: 5.67, favorite: false },
-    { id: 6, name: 'Ripple', symbol: 'XRP', price: 0.89, change24h: -2.34, favorite: false },
-    { id: 7, name: 'Polkadot', symbol: 'DOT', price: 21.34, change24h: 1.23, favorite: false },
-  ]);
-
   const [coins, setCoins] = useState<CoinData[]>([
     {
       symbol: 'BTC',
       name: 'Bitcoin',
-      price: 40000 + Math.random() * 2000,
-      change24h: 2.5
+      price: 52345.20,
+      change24h: 2.34
     },
     {
       symbol: 'ETH',
       name: 'Ethereum',
-      price: 2200 + Math.random() * 100,
-      change24h: -1.2
+      price: 3744.56,
+      change24h: -1.23
     },
     {
       symbol: 'BNB',
-      name: 'Binance Coin',
-      price: 300 + Math.random() * 20,
-      change24h: 1.8
-    },
-    {
-      symbol: 'SOL',
-      name: 'Solana',
-      price: 95 + Math.random() * 5,
-      change24h: 5.2
-    },
-    {
-      symbol: 'XRP',
-      name: 'Ripple',
-      price: 0.5 + Math.random() * 0.05,
-      change24h: -0.8
+      name: 'BNB',
+      price: 312.45,
+      change24h: 0.89
     }
   ]);
 
-  const toggleCoin = (coin: Coin) => {
-    if (watchlist.some(w => w.id === coin.id)) {
-      setWatchlist(watchlist.filter(w => w.id !== coin.id));
+  const [searchResults, setSearchResults] = useState<CoinData[]>([
+    { symbol: 'ADA', name: 'Cardano', price: 1.23, change24h: 3.45 },
+    { symbol: 'SOL', name: 'Solana', price: 123.45, change24h: 5.67 },
+    { symbol: 'XRP', name: 'Ripple', price: 0.89, change24h: -2.34 },
+    { symbol: 'DOT', name: 'Polkadot', price: 21.34, change24h: 1.23 }
+  ]);
+
+  const toggleCoin = (coin: CoinData) => {
+    if (searchResults.some(w => w.symbol === coin.symbol)) {
+      setSearchResults(searchResults.filter(w => w.symbol !== coin.symbol));
     } else {
-      setWatchlist([...watchlist, { ...coin, favorite: true }]);
+      setSearchResults([...searchResults, coin]);
     }
   };
 
-  const selectCoin = (coin: Coin) => {
-    setSelectedCoin({
-      id: coin.id,
+  const selectCoin = (coin: CoinData) => {
+    onCoinSelect({
       name: coin.name,
-      symbol: coin.symbol
+      symbol: coin.symbol,
+      price: coin.price,
+      change24h: coin.change24h
     });
   };
 
@@ -129,7 +109,7 @@ export default function Watchlist({ onCoinSelect }: WatchlistProps) {
         {coins.map((coin) => (
           <button
             key={coin.symbol}
-            onClick={() => onCoinSelect?.(coin.symbol)}
+            onClick={() => onCoinSelect({ name: coin.name, symbol: coin.symbol })}
             className="flex-shrink-0 w-[280px] md:w-full p-3 bg-[#2A2C32] rounded-xl hover:bg-[#313438] transition-colors active:bg-[#363840]"
           >
             <div className="flex items-center justify-between">
@@ -191,7 +171,7 @@ export default function Watchlist({ onCoinSelect }: WatchlistProps) {
             <div className="overflow-y-auto h-[calc(100vh-140px)] md:max-h-[400px] p-4 md:p-6 space-y-2">
               {filteredResults.map((coin) => (
                 <div
-                  key={coin.id}
+                  key={coin.symbol}
                   className="flex items-center justify-between p-3 hover:bg-[#2A2C32] rounded-xl transition-colors cursor-pointer active:bg-[#313438]"
                   onClick={() => toggleCoin(coin)}
                 >
@@ -211,7 +191,7 @@ export default function Watchlist({ onCoinSelect }: WatchlistProps) {
                         {coin.change24h >= 0 ? '+' : ''}{coin.change24h}%
                       </div>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border-2 ${watchlist.some(w => w.id === coin.id) ? 'bg-[#6C5DD3] border-[#6C5DD3]' : 'border-gray-400'}`} />
+                    <div className={`w-6 h-6 rounded-full border-2 ${searchResults.some(w => w.symbol === coin.symbol) ? 'bg-[#6C5DD3] border-[#6C5DD3]' : 'border-gray-400'}`} />
                   </div>
                 </div>
               ))}

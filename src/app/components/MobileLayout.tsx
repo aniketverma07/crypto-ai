@@ -12,9 +12,15 @@ import DesktopRecommendation from './DesktopRecommendation';
 import AlertList from './AlertList';
 import MarketAnalysis from './MarketAnalysis';
 
+interface Coin {
+  symbol: string;
+  name: string;
+}
+
 export default function MobileLayout() {
   const [showWarning, setShowWarning] = useState(false);
   const [warningDismissed, setWarningDismissed] = useState(false);
+  const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
 
   useEffect(() => {
     // Show warning after 5 seconds
@@ -34,26 +40,26 @@ export default function MobileLayout() {
       {/* Warning Message */}
       {showWarning && !warningDismissed && (
         <div className="fixed inset-x-0 top-0 z-50 animate-slide-down px-1">
-          <div className="bg-[#1A1B1E] p-4 my-2 rounded-xl border border-[#6C5DD3] shadow-lg">
-            <div className="flex items-start gap-3">
-              <div className="bg-[#6C5DD3] p-2 rounded-lg shrink-0">
-                <IoDesktopOutline className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1">Switch to Desktop</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  For the best trading experience with full features and better visualization, please use our desktop version.
-                </p>
-              </div>
-              <button 
-                onClick={dismissWarning}
-                className="text-gray-500 hover:text-white transition-colors shrink-0"
-              >
-                <IoCloseCircleOutline className="w-6 h-6" />
-              </button>
+        <div className="bg-[#1A1B1E] p-4 my-2 rounded-xl border border-[#6C5DD3] shadow-lg">
+          <div className="flex items-start gap-3">
+            <div className="bg-[#6C5DD3] p-2 rounded-lg shrink-0">
+              <IoDesktopOutline className="w-6 h-6 text-white" />
             </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-white mb-1">Switch to Desktop</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                For the best trading experience with full features and better visualization, please use our desktop version.
+              </p>
+            </div>
+            <button 
+              onClick={dismissWarning}
+              className="text-gray-500 hover:text-white transition-colors shrink-0"
+            >
+              <IoCloseCircleOutline className="w-6 h-6" />
+            </button>
           </div>
         </div>
+      </div>
       )}
 
       {/* Mobile Content */}
@@ -74,12 +80,12 @@ export default function MobileLayout() {
 
           {/* Watchlist Section */}
           <div className="bg-[#1A1B1E] rounded-xl overflow-x-auto">
-            <Watchlist onCoinSelect={() => {}} />
+            <Watchlist onCoinSelect={(coin) => setSelectedCoin(coin)} />
           </div>
 
           {/* Market Analysis Section */}
           <div className="bg-[#1A1B1E] rounded-xl overflow-hidden">
-            <MarketAnalysis />
+            <MarketAnalysis selectedCoin={selectedCoin} />
           </div>
 
           {/* Alert List Section */}

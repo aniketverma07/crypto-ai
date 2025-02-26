@@ -38,7 +38,7 @@ const chartOptions = {
       display: false,
     },
     tooltip: {
-      mode: 'index',
+      mode: 'index' as const,
       intersect: false,
       backgroundColor: '#2A2C32',
       titleColor: '#fff',
